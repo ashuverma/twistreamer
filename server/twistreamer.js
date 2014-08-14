@@ -1,13 +1,13 @@
-#!/bin/env node
-//  OpenShift sample Node application
-var express = require('express');
-var fs      = require('fs');
-
+var fs = require('fs')
+    , express = require('express')
+    , http = require('http')
+    , socketio = require('socket.io')
+    , path = require('path')
 
 /**
- *  Define the sample application.
+ *  Define the application.
  */
-var SampleApp = function() {
+var Application = function() {
 
     //  Scope.
     var self = this;
@@ -23,16 +23,23 @@ var SampleApp = function() {
     self.setupVariables = function() {
         //  Set the environment variables we need.
         self.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
-        self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+        self.port      = process.env.OPENSHIFT_NODEJS_PORT || 3000;
 
         if (typeof self.ipaddress === "undefined") {
-            //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
-            //  allows us to run/test the app locally.
             console.warn('No OPENSHIFT_NODEJS_IP var, using 127.0.0.1');
             self.ipaddress = "127.0.0.1";
+            self.env = 'development'
+        } else {
+            self.env = 'production'
         };
     };
 
+    /**
+     * Load Configuration
+     */
+    self.getConfig = function() {
+        self.config = require('./config/' + self.env)
+    }
 
     /**
      *  Populate the cache.
@@ -95,12 +102,7 @@ var SampleApp = function() {
     self.createRoutes = function() {
         self.routes = { };
 
-        self.routes['/asciimo'] = function(req, res) {
-            var link = "http://i.imgur.com/kmbjB.png";
-            res.send("<html><body><img src='" + link + "'></body></html>");
-        };
-
-        self.routes['/'] = function(req, res) {
+        self.routes['/*'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('index.html') );
         };
@@ -113,20 +115,53 @@ var SampleApp = function() {
      */
     self.initializeServer = function() {
         self.createRoutes();
-        self.app = express.createServer();
-
+        self.app = express();
+        self.io = socketio(http.Server(self.app));
+        self.setUpExpress();
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }
     };
 
+    /**
+     * Set up express
+     */
+    self.setUpExpress = function()  {
+        if (self.env === 'development') {
+            self.app.set('showStackError', true)
+        }
+        //gets ip behind nginx
+        self.app.enable('trust proxy')
+
+        //Access Logs
+        var logFilename = path.join(self.config.paths.root , './logs/access_logs_'+ self.env)
+        var logFileStream = fs.createWriteStream(logFilename, {flags: 'a'})
+        var logFormat = ':remote-addr - - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" ":response-time"'
+
+        express.logger.format('beast', logFormat)
+        self.app.use(express.logger({
+            stream : logFileStream,
+            format : 'beast'
+        }))
+
+        //compress the content to be sent
+        self.app.use(express.compress())
+
+        self.app.use(express.favicon(path.join(self.config.paths.static, 'favicon.ico')));
+
+        //static directory
+        self.app.use(express.static(path.join(self.config.paths.root ,'public'),  { maxAge: 36000 }))
+        self.app.use(self.app.router)
+    }
 
     /**
      *  Initializes the sample application.
      */
     self.initialize = function() {
         self.setupVariables();
+        self.getConfig();
+
         self.populateCache();
         self.setupTerminationHandlers();
 
@@ -148,12 +183,5 @@ var SampleApp = function() {
 
 };   /*  Sample Application.  */
 
-
-
-/**
- *  main():  Main code.
- */
-var zapp = new SampleApp();
-zapp.initialize();
-zapp.start();
+module.exports = Application
 
