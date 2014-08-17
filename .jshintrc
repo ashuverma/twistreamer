@@ -1,0 +1,10 @@
+{
+	"node" : true,
+	"laxcomma" : true,
+	"camelcase" : false,
+	"curly" : true,
+	"indent" : 4,
+	"newcap" : true,
+	"asi" : true,
+	"expr" : true
+}

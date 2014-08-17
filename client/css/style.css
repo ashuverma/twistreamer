@@ -1,0 +1,59 @@
+html {
+  overflow-y:scroll;
+
+}
+#wrapper {
+	margin-top: 100px;
+}
+.marB20 {
+  margin-bottom: 20px;
+}
+.tweets-container {
+  padding: 0px;
+}
+
+.tweets-container > li {
+	list-style:  none;
+	margin-top:5px;
+	padding: 5px;
+	color:#555;
+  font-size: 16px;
+}
+
+.tweet-animation.ng-enter, 
+.tweet-animation.ng-leave, 
+.tweet-animation.ng-move {
+  -webkit-transition: 1s linear all;
+  transition: 1s linear all;
+  position:relative;
+}
+
+.tweet-animation.ng-enter {
+  left:-10px;
+  opacity:0;
+}
+.tweet-animation.ng-enter.ng-enter-active {
+  left:0;
+  opacity:1;
+}
+
+.tweet-animation.ng-leave {
+  left:0;
+  opacity:1;
+}
+.tweet-animation.ng-leave.ng-leave-active {
+  left:-10px;
+  opacity:0;
+}
+
+.tweet-animation.ng-move {
+  opacity:1.0;
+}
+.tweet-animation.ng-move.ng-move-active {
+  opacity:1;
+}
+
+/* Margins */
+.marT20 {
+  margin-top: 20px;
+}

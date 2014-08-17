@@ -1,0 +1,18 @@
+{
+  "name": "Twistreamer",
+  "version": "0.0.1.0",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "3.1.1",
+    "angular": "1.2.16",
+    "angular-bootstrap": "0.11.0",
+    "angular-animate": "1.2.16",
+    "angular-route": "1.2.16",
+    "angular-sanitize": "1.2.16",
+    "angular-resource": "1.2.16",
+    "socket.io-client": "~0.9.16",
+    "ngInfiniteScroll": "1.0.0",
+    "highcharts-ng": "~0.0.6",
+    "highcharts": "~4.0.3"
+  }
+}

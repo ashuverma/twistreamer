@@ -1,0 +1,31 @@
+<div data-ng-controller="AppCtrl">
+	<div class="row">
+		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-lg-offset-1 col-md-offset-1">
+			<form >
+				<div class="input-group">
+      				<input type="text" class="form-control" ng-model="keywords">
+				      <span class="input-group-btn">
+				        <button class="btn btn-success" data-ng-click="stream()" type="submit">Stream</button>
+				      </span>
+   					 </div><!-- /input-group -->
+	        </form>
+		</div>
+	</div>
+	<div class="row marT20" ng-show="showResults">
+		<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 col-md-offset-1 col-lg-offset-1 well">
+			<highchart id="chart1" config="chartConfig" ></highchart>
+		</div>
+	</div>
+	<div class="row" ng-show="showResults">
+		<div class="col-xs-6 col-sm-6 col-md-10 col-lg-10 col-md-offset-1 col-lg-offset-1 marB20">
+			<ul class="tweets-container" infinite-scroll="addMoreTweets()">
+				<li ng-repeat="tweet in data.tweetsToDisplay " class="tweet-animation">
+					<img ng-src="{{tweet.user.profile_image_url}}" class="img-circle" alt="Image">
+					<strong> {{tweet.user.name}}</strong>
+					<p>{{tweet.text}}</p>
+				</li>
+			</ul>
+			<div ng-hide="data.loadingNextPage"><img ng-src="/img/loader.gif" class="img-responsive" alt="Loading.."></div>
+		</div>
+	</div>
+</div>

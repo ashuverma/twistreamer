@@ -1,7 +1,5 @@
 var fs = require('fs')
     , express = require('express')
-    , http = require('http')
-    , socketio = require('socket.io')
     , path = require('path')
 
 /**
@@ -31,7 +29,7 @@ var Application = function() {
             self.env = 'development'
         } else {
             self.env = 'production'
-        };
+        }
     };
 
     /**
@@ -39,7 +37,7 @@ var Application = function() {
      */
     self.getConfig = function() {
         self.config = require('./config/' + self.env)
-    }
+    };
 
     /**
      *  Populate the cache.
@@ -116,7 +114,6 @@ var Application = function() {
     self.initializeServer = function() {
         self.createRoutes();
         self.app = express();
-        self.io = socketio(http.Server(self.app));
         self.setUpExpress();
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
@@ -163,7 +160,7 @@ var Application = function() {
         self.getConfig();
 
         self.populateCache();
-        self.setupTerminationHandlers();
+      //  self.setupTerminationHandlers();
 
         // Create the express server and routes.
         self.initializeServer();
@@ -174,13 +171,14 @@ var Application = function() {
      *  Start the server (starts up the sample application).
      */
     self.start = function() {
-        //  Start the app on the specific interface (and port).
-        self.app.listen(self.port, self.ipaddress, function() {
-            console.log('%s: Node server started on %s:%d ...',
+        require('./streamer')(self.app, self.config, function(http) {
+
+            http.listen(self.port, self.ipaddress, function() {
+                console.log('%s: Node server started on %s:%d ...',
                         Date(Date.now() ), self.ipaddress, self.port);
+            })
         });
     };
-
 };   /*  Sample Application.  */
 
 module.exports = Application
